@@ -15,270 +15,295 @@
 
   <style>
     /* БАЗОВЫЕ СТИЛИ */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f5f5f5;
-      color: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f5f5f5;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background 0.3s ease, color 0.3s ease;
+}
 
-    /* ШАПКА: градиент + тень */
-    header {
-      background: linear-gradient(90deg, #0088cc, #0070a3);
-      color: #fff;
-      width: 100%;
-      text-align: center;
-      padding: 15px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: background 0.3s ease;
-    }
+/* ШАПКА: градиент + тень */
+header {
+  background: linear-gradient(90deg, #0088cc, #0070a3);
+  color: #fff;
+  width: 100%;
+  text-align: center;
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background 0.3s ease;
+}
 
-    header h1 {
-      font-weight: 600;
-      font-size: 1.3rem;
-    }
+header h1 {
+  font-weight: 600;
+  font-size: 1.3rem;
+}
 
-    /* Основные блоки и контейнеры */
-    .filters-container,
-    .sort-container,
-    .actions-container {
-      width: 90%;
-      max-width: 600px;
-      margin: 10px auto;
-      display: flex;
-      flex-wrap: wrap; /* чтобы на мобильном переносилось */
-      align-items: center;
-      justify-content: space-between;
-    }
+/* Основные блоки и контейнеры */
+.filters-container,
+.sort-container,
+.actions-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 10px auto;
+  display: flex;
+  flex-wrap: wrap; /* чтобы на мобильном переносилось */
+  align-items: center;
+  justify-content: space-between;
+}
 
-    .filters-container label,
-    .sort-container button,
-    .filters-container button {
-      margin: 5px 5px 5px 0;
-    }
+.filters-container label,
+.sort-container button,
+.filters-container button {
+  margin: 5px 5px 5px 0;
+}
 
-    .filters-container select {
-      margin-left: 5px;
-    }
+.filters-container select {
+  margin-left: 5px;
+}
 
-    .question {
-      margin: 20px;
-      font-size: 1.1rem;
-      text-align: center;
-    }
+.question {
+  margin: 20px;
+  font-size: 1.1rem;
+  text-align: center;
+}
 
-    .swiper-container {
-      width: 90%;
-      max-width: 600px;
-      height: 420px;
-      margin-bottom: 20px;
-      transition: background 0.3s ease;
-    }
+/* Убираем фиксированную высоту у swiper-container */
+.swiper-container {
+  width: 90%;
+  max-width: 600px;
+  /* height: 420px;  <-- УДАЛИЛИ */
+  margin-bottom: 20px;
+  transition: background 0.3s ease;
+}
 
-    /* Слайд */
-    .swiper-slide {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      transition: background 0.3s ease;
-    }
+/* Слайд */
+.swiper-slide {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+  /* Вместо align-items: center — используем flex-start, чтобы карточка шла сверху */
+  align-items: flex-start;
+  padding: 10px;
+  transition: background 0.3s ease;
 
-    /* Карточка блюда */
-    .dish-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-      width: 100%;
-      max-width: 350px;
-      border-radius: 10px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .dish-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
+  /* Если карточка слишком длинная, разрешаем вертикальный скролл внутри */
+  overflow-y: auto;
+  /* Ограничим высоту, чтобы часть экрана была видна */
+  max-height: 75vh;
+}
 
-    .dish-card h3 {
-      margin: 10px 0 5px 0;
-      font-size: 1.05em;
-      text-align: center;
-    }
+/* Карточка блюда */
+.dish-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  width: 100%;
+  max-width: 350px;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.dish-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
 
-    .dish-card p {
-      margin: 5px 0;
-      font-size: 0.9em;
-      color: #555;
-      text-align: center;
-    }
+.dish-card h3 {
+  margin: 10px 0 5px 0;
+  font-size: 1.05em;
+  text-align: center;
+}
 
-    /* Картинка блюда */
-    .dish-image {
-      width: 100%;
-      max-width: 320px;
-      height: auto;
-      border-radius: 10px;
-      object-fit: cover;
-    }
+.dish-card p {
+  margin: 5px 0;
+  font-size: 0.9em;
+  color: #555;
+  text-align: center;
+}
 
-    /* Кнопки */
-    .btn {
-      background: #0088cc;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.9em;
-      margin: 5px;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
-    .btn:hover {
-      background: #0077b3;
-      transform: scale(1.02);
-    }
+/* Картинка блюда */
+.dish-image {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
 
-    /* Контейнер с кнопками (Выбрать блюдо, Отправить другу) */
-    .buttons-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      justify-content: center;
-    }
+/* Кнопки */
+.btn {
+  background: #0088cc;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin: 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.btn:hover {
+  background: #0077b3;
+  transform: scale(1.02);
+}
 
-    /* Модальное окно */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .modal.show {
-      display: block;
-      opacity: 1;
-    }
+/* Контейнер с кнопками (Выбрать блюдо, Отправить другу) */
+.buttons-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
 
-    .modal-content {
-      background-color: #fff;
-      margin: 5% auto;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 10px;
-      position: relative;
-      transform: translateY(-30px);
-      opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    .modal.show .modal-content {
-      transform: translateY(0);
-      opacity: 1;
-    }
+/* Модальное окно */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.modal.show {
+  display: block;
+  opacity: 1;
+}
 
-    .close {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 24px;
-      cursor: pointer;
-    }
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
+  position: relative;
+  transform: translateY(-30px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.modal.show .modal-content {
+  transform: translateY(0);
+  opacity: 1;
+}
 
-    /* Форма */
-    #addDishForm {
-      display: flex;
-      flex-direction: column;
-    }
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
 
-    #addDishForm label {
-      margin-top: 10px;
-      font-weight: 600;
-      font-size: 0.9em;
-    }
+/* Форма */
+#addDishForm {
+  display: flex;
+  flex-direction: column;
+}
 
-    #addDishForm input,
-    #addDishForm select,
-    #addDishForm textarea {
-      margin-top: 5px;
-      padding: 8px;
-      font-size: 0.9em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
+#addDishForm label {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
 
-    .dish-card .btn {
-      margin-top: 8px;
-      width: 90%;
-      max-width: 200px;
-      text-align: center;
-    }
+#addDishForm input,
+#addDishForm select,
+#addDishForm textarea {
+  margin-top: 5px;
+  padding: 8px;
+  font-size: 0.9em;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  outline: none;
+}
 
-    /* ТЁМНАЯ ТЕМА */
-    body.dark-mode {
-      background: #1e1e1e;
-      color: #f5f5f5;
-    }
-    body.dark-mode header {
-      background: linear-gradient(90deg, #333, #444);
-    }
-    body.dark-mode .swiper-slide {
-      background: #2c2c2c;
-      color: #fff;
-    }
-    body.dark-mode .btn {
-      background: #444;
-      color: #fff;
-    }
-    body.dark-mode .modal-content {
-      background-color: #333;
-      color: #fff;
-    }
-    body.dark-mode input,
-    body.dark-mode select,
-    body.dark-mode textarea {
-      background: #555;
-      color: #fff;
-      border: 1px solid #777;
-    }
+.dish-card .btn {
+  margin-top: 8px;
+  width: 90%;
+  max-width: 200px;
+  text-align: center;
+}
 
-    /* АДАПТИВНОСТЬ */
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.1rem;
-      }
-      .filters-container,
-      .sort-container,
-      .actions-container {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .filters-container select,
-      .filters-container button,
-      .sort-container button {
-        margin: 5px 0;
-      }
-      .swiper-container {
-        height: 420px;
-      }
-    }
+/* ТЁМНАЯ ТЕМА */
+body.dark-mode {
+  background: #1e1e1e;
+  color: #f5f5f5;
+}
+body.dark-mode header {
+  background: linear-gradient(90deg, #333, #444);
+}
+body.dark-mode .swiper-slide {
+  background: #2c2c2c;
+  color: #fff;
+}
+body.dark-mode .btn {
+  background: #444;
+  color: #fff;
+}
+body.dark-mode .modal-content {
+  background-color: #333;
+  color: #fff;
+}
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #555;
+  color: #fff;
+  border: 1px solid #777;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 1.1rem;
+  }
+  .filters-container,
+  .sort-container,
+  .actions-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .filters-container select,
+  .filters-container button,
+  .sort-container button {
+    margin: 5px 0;
+  }
+
+  /* На маленьком экране пусть swiper-container не имеет фиксированной высоты */
+  .swiper-container {
+    /* auto-height на мобильном */
+    height: auto;
+  }
+
+  .dish-card {
+    padding: 8px;
+  }
+
+  .dish-card h3 {
+    font-size: 1em;
+  }
+  .dish-card p {
+    font-size: 0.85em;
+  }
+  .btn {
+    font-size: 0.85em;
+    padding: 6px 10px;
+  }
+}
   </style>
 </head>
 <body>
