@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+  <title>Выбор блюда для ужина</title>
+
+  <!-- Google Fonts (Poppins) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Swiper.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+  <style>
+    /* БАЗОВЫЕ СТИЛИ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* ШАПКА: градиент + тень */
+    header {
+      background: linear-gradient(90deg, #0088cc, #0070a3);
+      color: #fff;
+      width: 100%;
+      text-align: center;
+      padding: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background 0.3s ease;
+    }
+
+    header h1 {
+      font-weight: 600;
+      font-size: 1.3rem;
+    }
+
+    /* Основные блоки и контейнеры */
+    .filters-container,
+    .sort-container,
+    .actions-container {
+      width: 90%;
+      max-width: 600px;
+      margin: 10px auto;
+      display: flex;
+      flex-wrap: wrap; /* чтобы на мобильном переносилось */
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filters-container label,
+    .sort-container button,
+    .filters-container button {
+      margin: 5px 5px 5px 0;
+    }
+
+    .filters-container select {
+      margin-left: 5px;
+    }
+
+    .question {
+      margin: 20px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .swiper-container {
+      width: 90%;
+      max-width: 600px;
+      height: 420px;
+      margin-bottom: 20px;
+      transition: background 0.3s ease;
+    }
+
+    /* Слайд */
+    .swiper-slide {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      transition: background 0.3s ease;
+    }
+
+    /* Карточка блюда */
+    .dish-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      width: 100%;
+      max-width: 350px;
+      border-radius: 10px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .dish-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .dish-card h3 {
+      margin: 10px 0 5px 0;
+      font-size: 1.05em;
+      text-align: center;
+    }
+
+    .dish-card p {
+      margin: 5px 0;
+      font-size: 0.9em;
+      color: #555;
+      text-align: center;
+    }
+
+    /* Картинка блюда */
+    .dish-image {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    /* Кнопки */
+    .btn {
+      background: #0088cc;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+      margin: 5px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .btn:hover {
+      background: #0077b3;
+      transform: scale(1.02);
+    }
+
+    /* Контейнер с кнопками (Выбрать блюдо, Отправить другу) */
+    .buttons-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    /* Модальное окно */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      position: relative;
+      transform: translateY(-30px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .modal.show .modal-content {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Форма */
+    #addDishForm {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #addDishForm label {
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    #addDishForm input,
+    #addDishForm select,
+    #addDishForm textarea {
+      margin-top: 5px;
+      padding: 8px;
+      font-size: 0.9em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    .dish-card .btn {
+      margin-top: 8px;
+      width: 90%;
+      max-width: 200px;
+      text-align: center;
+    }
+
+    /* ТЁМНАЯ ТЕМА */
+    body.dark-mode {
+      background: #1e1e1e;
+      color: #f5f5f5;
+    }
+    body.dark-mode header {
+      background: linear-gradient(90deg, #333, #444);
+    }
+    body.dark-mode .swiper-slide {
+      background: #2c2c2c;
+      color: #fff;
+    }
+    body.dark-mode .btn {
+      background: #444;
+      color: #fff;
+    }
+    body.dark-mode .modal-content {
+      background-color: #333;
+      color: #fff;
+    }
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background: #555;
+      color: #fff;
+      border: 1px solid #777;
+    }
+
+    /* АДАПТИВНОСТЬ */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.1rem;
+      }
+      .filters-container,
+      .sort-container,
+      .actions-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .filters-container select,
+      .filters-container button,
+      .sort-container button {
+        margin: 5px 0;
+      }
+      .swiper-container {
+        height: 420px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Что приготовить на ужин?</h1>
+  </header>
+
+  <!-- Блок фильтров -->
+  <div class="filters-container">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+      <label for="timeSelect">Время:</label>
+      <select id="timeSelect">
+        <option value="30">До 30 минут</option>
+        <option value="60">До 60 минут</option>
+        <option value="9999">Не важно</option>
+      </select>
+
+      <label for="difficultySelect">Сложность:</label>
+      <select id="difficultySelect">
+        <option value="all">Все</option>
+        <option value="easy">Простые</option>
+        <option value="medium">Средние</option>
+        <option value="hard">Сложные</option>
+      </select>
+
+      <label for="categorySelect">Категория:</label>
+      <select id="categorySelect">
+        <option value="all">Все</option>
+        <option value="soup">Суп</option>
+        <option value="garnir">Гарнир</option>
+        <option value="salad">Салат</option>
+        <option value="desert">Десерт</option>
+      </select>
+
+      <label for="foodTypeSelect">Тип:</label>
+      <select id="foodTypeSelect">
+        <option value="all">Все</option>
+        <option value="meat">Мясное</option>
+        <option value="veg">Вегетарианское</option>
+        <option value="fish">Рыба</option>
+      </select>
+    </div>
+
+    <button id="filterButton" class="btn">Применить</button>
+  </div>
+
+  <!-- Кнопки сортировки -->
+  <div class="sort-container">
+    <button id="sortTimeAsc" class="btn">Время ↑</button>
+    <button id="sortTimeDesc" class="btn">Время ↓</button>
+    <button id="sortNameAsc" class="btn">Название А–Я</button>
+  </div>
+
+  <!-- Кнопки "Добавить блюдо", "Мои блюда" и "Тёмная тема" -->
+  <div class="actions-container">
+    <button id="addDishButton" class="btn">Добавить блюдо</button>
+    <label>
+      <input type="checkbox" id="toggleMyDishes" />
+      Мои блюда
+    </label>
+    <label>
+      <input type="checkbox" id="toggleDarkMode" />
+      Тёмная тема
+    </label>
+  </div>
+
+  <div class="question" id="question">Какой гарнир вы хотите?</div>
+
+  <!-- Swiper -->
+  <div class="swiper-container">
+    <div class="swiper-wrapper">
+      <!-- Карточки генерируются динамически -->
+    </div>
+  </div>
+
+  <!-- Кнопки управления -->
+  <div class="buttons-container">
+    <button class="btn" id="confirmButton">Выбрать блюдо</button>
+    <button class="btn" id="shareButton">Отправить другу</button>
+  </div>
+
+  <!-- Модальное окно для добавления / редактирования блюда -->
+  <div class="modal" id="addDishModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2 style="margin-bottom: 10px;">Добавить / Редактировать блюдо</h2>
+      <form id="addDishForm">
+        <label for="dishName">Название блюда:</label>
+        <input type="text" id="dishName" name="dishName" required />
+
+        <label for="dishTime">Время готовки (минуты):</label>
+        <input type="number" id="dishTime" name="dishTime" required />
+
+        <label for="dishDifficulty">Сложность:</label>
+        <select id="dishDifficulty" name="dishDifficulty" required>
+          <option value="easy">Простое</option>
+          <option value="medium">Среднее</option>
+          <option value="hard">Сложное</option>
+        </select>
+
+        <label for="dishImage">Ссылка на картинку (URL):</label>
+        <input type="text" id="dishImage" name="dishImage" placeholder="Не обязательно" />
+
+        <label for="dishDescription">Описание / Рецепт:</label>
+        <textarea id="dishDescription" name="dishDescription" rows="3" placeholder="Опишите рецепт..."></textarea>
+
+        <label for="dishCategory">Категория (Суп, Гарнир...):</label>
+        <select id="dishCategory" name="dishCategory">
+          <option value="soup">Суп</option>
+          <option value="garnir">Гарнир</option>
+          <option value="salad">Салат</option>
+          <option value="desert">Десерт</option>
+        </select>
+
+        <label for="dishFoodType">Тип блюда (Мясное / Вег / Рыба):</label>
+        <select id="dishFoodType" name="dishFoodType">
+          <option value="meat">Мясное</option>
+          <option value="veg">Вегетарианское</option>
+          <option value="fish">Рыба</option>
+        </select>
+
+        <button type="submit" class="btn" style="margin-top: 15px;">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Модальное окно для просмотра подробного описания блюда -->
+  <div class="modal" id="recipeModal">
+    <div class="modal-content">
+      <span class="close" id="closeRecipeModal">&times;</span>
+      <h2 id="recipeTitle" style="margin-bottom: 10px;">Название блюда</h2>
+      <p id="recipeText">Здесь будет описание</p>
+    </div>
+  </div>
+
+  <!-- Подключаем скрипты -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    // Инициализация Telegram Mini App
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // -----------------------------
+    // 1. МАССИВ "ОБЩИХ" БЛЮД
+    // -----------------------------
+    // Добавили поле "id", "category", "foodType" и "likes" (для демонстрации).
+    // "likes" можно убрать отсюда, т.к. будем хранить в отдельном объекте "likesData".
+    const dishes = [
+      {
+        id: 1001,
+        name: "Картофельное пюре",
+        time: 30,
+        difficulty: "easy",
+        image: "https://obed-gotov.ru/wp-content/uploads/2021/03/scale_1200-1-3.webp",
+        description: "Отличный гарнир к мясу или рыбе. Отварить картофель, размять с молоком и маслом.",
+        category: "garnir",
+        foodType: "veg"
+      },
+      {
+        id: 1002,
+        name: "Запечённая картошка",
+        time: 45,
+        difficulty: "medium",
+        image: "https://i.pinimg.com/originals/a6/ea/a8/a6eaa81c06b2908fff5f79d6bb8105d6.jpg",
+        description: "Запечь картофель в духовке со специями и маслом. Простой и вкусный способ приготовления.",
+        category: "garnir",
+        foodType: "veg"
+      },
+      {
+        id: 1003,
+        name: "Картофель фри",
+        time: 20,
+        difficulty: "easy",
+        image: "https://static.tildacdn.com/tild6630-3564-4234-b162-306566313931/kartoha-free.png",
+        description: "Обжарить картофельные палочки во фритюре или на сковороде до золотистой корочки.",
+        category: "garnir",
+        foodType: "veg"
+      },
+      {
+        id: 1004,
+        name: "Овощное рагу",
+        time: 40,
+        difficulty: "medium",
+        image: "https://i.pinimg.com/originals/fd/2c/90/fd2c90e95de9bc625fa6d3699191e9f3.jpg",
+        description: "Тушёные овощи (кабачки, баклажаны, перец, помидоры) с луком и специями. Полезно и вкусно.",
+        category: "salad",
+        foodType: "veg"
+      },
+      {
+        id: 1005,
+        name: "Борщ",
+        time: 60,
+        difficulty: "hard",
+        image: "https://madeindream.com/image/data/products/planetarnie-miksery/rawmid-rlm-05/meal/rlm05-sup-1200x800.jpg",
+        description: "Классический свекольный суп с мясом, капустой, картофелем, морковью и луком.",
+        category: "soup",
+        foodType: "meat"
+      }
+    ];
+
+    // -----------------------------
+    // 2. МАССИВ ПОЛЬЗОВАТЕЛЬСКИХ БЛЮД
+    // -----------------------------
+    let myDishes = [];
+    const savedMyDishes = localStorage.getItem('myDishes');
+    if (savedMyDishes) {
+      myDishes = JSON.parse(savedMyDishes);
+    }
+
+    // -----------------------------
+    // 3. ЛАЙКИ (храним отдельно)
+    // -----------------------------
+    // likesData — объект вида { [dishId]: number }
+    // dishId — уникальный идентификатор блюда (у общих блюд прописан, у пользовательских — генерируется).
+    let likesData = {};
+    const savedLikes = localStorage.getItem('likes');
+    if (savedLikes) {
+      likesData = JSON.parse(savedLikes);
+    }
+
+    // -----------------------------
+    // Глобальные переменные
+    // -----------------------------
+    let currentEditingId = null; // для редактирования блюда
+
+    // -----------------------------
+    // ФУНКЦИЯ: генерация слайдов
+    // -----------------------------
+    function generateSlides(dishesArray) {
+      const swiperWrapper = document.querySelector('.swiper-wrapper');
+      swiperWrapper.innerHTML = '';
+
+      dishesArray.forEach(dish => {
+        const slide = document.createElement('div');
+        slide.classList.add('swiper-slide');
+
+        const card = document.createElement('div');
+        card.classList.add('dish-card');
+
+        // Картинка
+        const img = document.createElement('img');
+        img.classList.add('dish-image');
+        img.src = dish.image || 'https://via.placeholder.com/300x200?text=No+Image';
+        card.appendChild(img);
+
+        // Название
+        const title = document.createElement('h3');
+        title.textContent = dish.name;
+        card.appendChild(title);
+
+        // Время, сложность
+        const info = document.createElement('p');
+        info.textContent = `Время: ${dish.time} мин | Сложность: ${dish.difficulty}`;
+        card.appendChild(info);
+
+        // Категория
+        if (dish.category) {
+          const catP = document.createElement('p');
+          catP.textContent = `Категория: ${dish.category}`;
+          card.appendChild(catP);
+        }
+
+        // Тип блюда (мясное/вег/рыба)
+        if (dish.foodType) {
+          const ftP = document.createElement('p');
+          let ftText = '';
+          if (dish.foodType === 'meat') ftText = 'Мясное';
+          else if (dish.foodType === 'veg') ftText = 'Вегетарианское';
+          else if (dish.foodType === 'fish') ftText = 'Рыба';
+          ftP.textContent = `Тип: ${ftText}`;
+          card.appendChild(ftP);
+        }
+
+        // Кнопка "Подробнее" (описание)
+        if (dish.description && dish.description.trim() !== "") {
+          const detailsBtn = document.createElement('button');
+          detailsBtn.textContent = 'Подробнее';
+          detailsBtn.classList.add('btn');
+          detailsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openRecipeModal(dish);
+          });
+          card.appendChild(detailsBtn);
+        }
+
+        // Блок ЛАЙКОВ
+        const likeCount = likesData[dish.id] || 0;
+        const likeInfo = document.createElement('p');
+        likeInfo.textContent = `Лайков: ${likeCount}`;
+        card.appendChild(likeInfo);
+
+        const likeBtn = document.createElement('button');
+        likeBtn.textContent = 'Лайк ♥';
+        likeBtn.classList.add('btn');
+        likeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          addLike(dish.id);
+        });
+        card.appendChild(likeBtn);
+
+        // Если блюдо пользовательское (есть id и оно в myDishes)
+        // Показываем кнопки "Редактировать" и "Удалить"
+        // (На самом деле "id" есть и у общих блюд, но логика у нас такая,
+        // что редактировать/удалять можно только "мои" блюда.)
+        if (isUserDish(dish.id)) {
+          // Редактировать
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Редактировать';
+          editBtn.classList.add('btn');
+          editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openEditModal(dish);
+          });
+          card.appendChild(editBtn);
+
+          // Удалить
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Удалить';
+          deleteBtn.classList.add('btn');
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeDishById(dish.id);
+          });
+          card.appendChild(deleteBtn);
+        }
+
+        slide.appendChild(card);
+        swiperWrapper.appendChild(slide);
+      });
+    }
+
+    // Проверка, является ли блюдо пользовательским
+    function isUserDish(id) {
+      // Если id есть в myDishes
+      return myDishes.some(d => d.id === id);
+    }
+
+    // -----------------------------
+    // ФУНКЦИЯ: добавить лайк
+    // -----------------------------
+    function addLike(dishId) {
+      likesData[dishId] = (likesData[dishId] || 0) + 1;
+      localStorage.setItem('likes', JSON.stringify(likesData));
+
+      // Обновляем отображение
+      // Если чекбокс "Мои блюда" включен, показываем myDishes, иначе dishes
+      if (toggleMyDishes.checked) {
+        generateSlides(myDishes);
+      } else {
+        generateSlides(dishes);
+      }
+      swiper.update();
+    }
+
+    // -----------------------------
+    // УДАЛЕНИЕ блюда (только из myDishes)
+    // -----------------------------
+    function removeDishById(dishId) {
+      myDishes = myDishes.filter(d => d.id !== dishId);
+      localStorage.setItem('myDishes', JSON.stringify(myDishes));
+
+      // Если сейчас смотрим "мои блюда", перерисовываем
+      if (toggleMyDishes.checked) {
+        generateSlides(myDishes);
+      }
+      swiper.update();
+    }
+
+    // -----------------------------
+    // ОТКРЫТЬ модал для редактирования
+    // -----------------------------
+    function openEditModal(dish) {
+      currentEditingId = dish.id;
+      // Показываем окно
+      addDishModal.classList.add('show');
+      addDishModal.style.display = 'block';
+
+      // Заполняем форму
+      dishName.value = dish.name;
+      dishTime.value = dish.time;
+      dishDifficulty.value = dish.difficulty;
+      dishImage.value = dish.image || "";
+      dishDescription.value = dish.description || "";
+      dishCategory.value = dish.category || "garnir";
+      dishFoodType.value = dish.foodType || "meat";
+    }
+
+    // -----------------------------
+    // ОТКРЫТЬ модал с описанием (рецептом)
+    // -----------------------------
+    function openRecipeModal(dish) {
+      recipeTitle.textContent = dish.name;
+      recipeText.textContent = dish.description || "Нет описания.";
+
+      recipeModal.classList.add('show');
+      recipeModal.style.display = 'block';
+    }
+
+    // -----------------------------
+    // ИНИЦИАЛИЗАЦИЯ SWIPER
+    // -----------------------------
+    const swiper = new Swiper('.swiper-container', {
+      direction: 'horizontal',
+      loop: true,
+    });
+
+    // Сразу генерируем общие блюда
+    generateSlides(dishes);
+    swiper.update();
+
+    // -----------------------------
+    // ЭЛЕМЕНТЫ ДОМа
+    // -----------------------------
+    const timeSelect = document.getElementById('timeSelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const categorySelect = document.getElementById('categorySelect');
+    const foodTypeSelect = document.getElementById('foodTypeSelect');
+    const filterButton = document.getElementById('filterButton');
+
+    const addDishButton = document.getElementById('addDishButton');
+    const toggleMyDishes = document.getElementById('toggleMyDishes');
+    const toggleDarkMode = document.getElementById('toggleDarkMode');
+
+    const addDishModal = document.getElementById('addDishModal');
+    const closeModal = document.getElementById('closeModal');
+    const addDishForm = document.getElementById('addDishForm');
+
+    const recipeModal = document.getElementById('recipeModal');
+    const closeRecipeModal = document.getElementById('closeRecipeModal');
+    const recipeTitle = document.getElementById('recipeTitle');
+    const recipeText = document.getElementById('recipeText');
+
+    const dishName = document.getElementById('dishName');
+    const dishTime = document.getElementById('dishTime');
+    const dishDifficulty = document.getElementById('dishDifficulty');
+    const dishImage = document.getElementById('dishImage');
+    const dishDescription = document.getElementById('dishDescription');
+    const dishCategory = document.getElementById('dishCategory');
+    const dishFoodType = document.getElementById('dishFoodType');
+
+    // -----------------------------
+    // ФИЛЬТРАЦИЯ
+    // -----------------------------
+    filterButton.addEventListener('click', () => {
+      const timeValue = parseInt(timeSelect.value);
+      const difficultyValue = difficultySelect.value;
+      const categoryValue = categorySelect.value;
+      const foodTypeValue = foodTypeSelect.value;
+
+      // Фильтруем ТОЛЬКО общий массив dishes
+      // (Если нужно и для myDishes, придётся расширить логику.)
+      let filteredDishes = dishes.filter(dish => {
+        // По времени
+        if (timeValue !== 9999 && dish.time > timeValue) {
+          return false;
+        }
+        // По сложности
+        if (difficultyValue !== 'all' && dish.difficulty !== difficultyValue) {
+          return false;
+        }
+        // По категории
+        if (categoryValue !== 'all' && dish.category !== categoryValue) {
+          return false;
+        }
+        // По типу блюда
+        if (foodTypeValue !== 'all' && dish.foodType !== foodTypeValue) {
+          return false;
+        }
+        return true;
+      });
+
+      generateSlides(filteredDishes);
+      swiper.update();
+    });
+
+    // -----------------------------
+    // ДОБАВЛЕНИЕ (новое блюдо)
+    // -----------------------------
+    addDishButton.addEventListener('click', () => {
+      currentEditingId = null; // значит создаём новое
+      addDishForm.reset();     // очищаем форму
+
+      addDishModal.classList.add('show');
+      addDishModal.style.display = 'block';
+    });
+
+    // Закрыть окно добавления по крестику
+    closeModal.addEventListener('click', () => {
+      addDishModal.classList.remove('show');
+      setTimeout(() => {
+        addDishModal.style.display = 'none';
+      }, 300);
+    });
+
+    // Закрыть окно рецепта
+    closeRecipeModal.addEventListener('click', () => {
+      recipeModal.classList.remove('show');
+      setTimeout(() => {
+        recipeModal.style.display = 'none';
+      }, 300);
+    });
+
+    // Закрыть по клику вне модалки
+    window.addEventListener('click', (event) => {
+      if (event.target === addDishModal) {
+        addDishModal.classList.remove('show');
+        setTimeout(() => {
+          addDishModal.style.display = 'none';
+        }, 300);
+      }
+      if (event.target === recipeModal) {
+        recipeModal.classList.remove('show');
+        setTimeout(() => {
+          recipeModal.style.display = 'none';
+        }, 300);
+      }
+    });
+
+    // -----------------------------
+    // Сабмит формы (добавление / редактирование)
+    // -----------------------------
+    addDishForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const nameVal = dishName.value.trim();
+      const timeVal = parseInt(dishTime.value);
+      const diffVal = dishDifficulty.value;
+      const imgVal = dishImage.value.trim();
+      const descVal = dishDescription.value.trim();
+      const catVal = dishCategory.value;
+      const foodVal = dishFoodType.value;
+
+      if (currentEditingId === null) {
+        // Новое блюдо
+        const uniqueId = Date.now(); // простой способ сгенерировать ID
+        const newDish = {
+          id: uniqueId,
+          name: nameVal,
+          time: timeVal,
+          difficulty: diffVal,
+          image: imgVal,
+          description: descVal,
+          category: catVal,
+          foodType: foodVal
+        };
+        myDishes.push(newDish);
+      } else {
+        // Редактирование
+        const dishIndex = myDishes.findIndex(d => d.id === currentEditingId);
+        if (dishIndex !== -1) {
+          myDishes[dishIndex].name = nameVal;
+          myDishes[dishIndex].time = timeVal;
+          myDishes[dishIndex].difficulty = diffVal;
+          myDishes[dishIndex].image = imgVal;
+          myDishes[dishIndex].description = descVal;
+          myDishes[dishIndex].category = catVal;
+          myDishes[dishIndex].foodType = foodVal;
+        }
+        currentEditingId = null;
+      }
+
+      // Сохраняем в localStorage
+      localStorage.setItem('myDishes', JSON.stringify(myDishes));
+
+      // Если включен чекбокс "Мои блюда", обновляем слайды
+      if (toggleMyDishes.checked) {
+        generateSlides(myDishes);
+      }
+      swiper.update();
+
+      // Закрываем модал
+      addDishModal.classList.remove('show');
+      setTimeout(() => {
+        addDishModal.style.display = 'none';
+      }, 300);
+
+      addDishForm.reset();
+    });
+
+    // -----------------------------
+    // ПЕРЕКЛЮЧАТЕЛЬ "Мои блюда" / "Все блюда"
+    // -----------------------------
+    toggleMyDishes.addEventListener('change', () => {
+      if (toggleMyDishes.checked) {
+        generateSlides(myDishes);
+      } else {
+        generateSlides(dishes);
+      }
+      swiper.update();
+    });
+
+    // -----------------------------
+    // ТЁМНАЯ ТЕМА
+    // -----------------------------
+    toggleDarkMode.addEventListener('change', () => {
+      if (toggleDarkMode.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // При загрузке страницы проверим, какая тема была сохранена
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        toggleDarkMode.checked = true;
+        document.body.classList.add('dark-mode');
+      }
+    });
+
+    // -----------------------------
+    // КНОПКИ СОРТИРОВКИ
+    // -----------------------------
+    const sortTimeAscBtn = document.getElementById('sortTimeAsc');
+    const sortTimeDescBtn = document.getElementById('sortTimeDesc');
+    const sortNameAscBtn = document.getElementById('sortNameAsc');
+
+    // Сортировка "Время ↑"
+    sortTimeAscBtn.addEventListener('click', () => {
+      let arrayToSort = toggleMyDishes.checked ? [...myDishes] : [...dishes];
+      arrayToSort.sort((a, b) => a.time - b.time);
+      generateSlides(arrayToSort);
+      swiper.update();
+    });
+
+    // Сортировка "Время ↓"
+    sortTimeDescBtn.addEventListener('click', () => {
+      let arrayToSort = toggleMyDishes.checked ? [...myDishes] : [...dishes];
+      arrayToSort.sort((a, b) => b.time - a.time);
+      generateSlides(arrayToSort);
+      swiper.update();
+    });
+
+    // Сортировка "Название А–Я"
+    sortNameAscBtn.addEventListener('click', () => {
+      let arrayToSort = toggleMyDishes.checked ? [...myDishes] : [...dishes];
+      arrayToSort.sort((a, b) => a.name.localeCompare(b.name));
+      generateSlides(arrayToSort);
+      swiper.update();
+    });
+
+    // -----------------------------
+    // КНОПКИ "Выбрать блюдо" и "Отправить другу"
+    // -----------------------------
+    document.getElementById('confirmButton').addEventListener('click', () => {
+      const activeSlide = document.querySelector('.swiper-slide-active');
+      const selectedDish = activeSlide ? activeSlide.textContent : 'Нет выбранного блюда';
+      alert('Вы выбрали: ' + selectedDish);
+      // tg.sendData(JSON.stringify({ dish: selectedDish }));
+    });
+
+    const shareButton = document.getElementById('shareButton');
+    shareButton.addEventListener('click', () => {
+      const activeSlide = document.querySelector('.swiper-slide-active');
+      const selectedDish = activeSlide ? activeSlide.textContent : 'Нет выбранного блюда';
+
+      const shareText = `Я хочу приготовить: "${selectedDish}". Ты согласен?`;
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareText)}&text=${encodeURIComponent(shareText)}`;
+
+      tg.openLink(shareUrl);
+    });
+  </script>
+</body>
+</html>
